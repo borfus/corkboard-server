@@ -2,45 +2,47 @@ use diesel;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use uuid::Uuid;
+use chrono::NaiveDateTime;
 
-use crate::prelude::*;
-use crate::schema::users::dsl::users as all_users;
+use crate::schema::pin;
+use crate::schema::pin::dsl::pin as all_pins;
 
 #[derive(Serialize, Queryable)]
-pub struct User {
+pub struct Pin {
     pub id: Uuid,
-    pub username: String,
-    pub password: String,
-    pub first_name: String
+    pub last_modified_date: NaiveDateTime,
+    pub url: Option<String>,
+    pub title: Option<String>,
+    pub description: Option<String>
 }
 
 #[derive(Serialize, Deserialize, Insertable)]
-#[table_name = "users"]
-pub struct NewUser {
-    pub username: String,
-    pub password: String,
-    pub first_name: String
+#[table_name = "pin"]
+pub struct NewPin {
+    pub url: Option<String>,
+    pub title: Option<String>,
+    pub description: Option<String>
 }
 
-impl User {
-    pub fn get_all_users(conn: &PgConnection) -> Vec<User> {
-        all_users
-            .order(users::id.desc())
-            .load::<User>(conn)
+impl Pin {
+    pub fn get_all_pins(conn: &PgConnection) -> Vec<Pin> {
+        all_pins
+            .order(pin::id.desc())
+            .load::<Pin>(conn)
             .expect("error!")
     }
 
-    pub fn insert_user(user: NewUser, conn: &PgConnection) -> bool {
-        diesel::insert_into(users::table)
-            .values(&user)
+    pub fn insert_pin(pin: NewPin, conn: &PgConnection) -> bool {
+        diesel::insert_into(pin::table)
+            .values(&pin)
             .execute(conn)
             .is_ok()
     }
 
-    pub fn get_user_by_username(username: String, conn: &PgConnection) -> Vec<User> {
-        all_users
-            .filter(users::username.eq(username))
-            .load::<User>(conn)
+    pub fn get_pin_by_id(pin_id: &str, conn: &PgConnection) -> Vec<Pin> {
+        all_pins
+            .filter(pin::id.eq(Uuid::parse_str(pin_id).unwrap()))
+            .load::<Pin>(conn)
             .expect("error!")
     }
 }

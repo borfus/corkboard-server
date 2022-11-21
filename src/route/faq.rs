@@ -4,20 +4,20 @@ use crate::config::db::Conn as DbConn;
 use rocket_contrib::json::Json;
 use serde_json::Value;
 
-#[get("/user", format = "application/json")]
+#[get("/faq", format = "application/json")]
 pub fn get_all(conn: DbConn) -> Json<Value> {
-    let users = User::get_all_users(&conn);
-    Json(json!(users))
+    let faqs = Faq::get_all_faqs(&conn);
+    Json(json!(faqs))
 }
 
-#[post("/user", format = "application/json", data = "<new_user>")]
-pub fn new_user(conn: DbConn, new_user: Json<NewUser>) -> Json<Value> {
-    User::insert_user(new_user.into_inner(), &conn);
-    Json(json!(User::get_all_users(&conn).first()))
+#[post("/faq", format = "application/json", data = "<new_faq>")]
+pub fn new_faq(conn: DbConn, new_faq: Json<NewFaq>) -> Json<Value> {
+    Faq::insert_faq(new_faq.into_inner(), &conn);
+    Json(json!(Faq::get_all_faqs(&conn).first()))
 }
 
-#[get("/user/<username>", format = "application/json")]
-pub fn get_one(conn: DbConn, username: String) -> Json<Value> {
-    Json(json!(User::get_user_by_username(username, &conn)))
+#[get("/faq/<faq_id>", format = "application/json")]
+pub fn get_one(conn: DbConn, faq_id: String) -> Json<Value> {
+    Json(json!(Faq::get_faq_by_id(faq_id.as_str(), &conn)))
 }
 

@@ -2,7 +2,7 @@ pub mod event;
 pub mod pin;
 pub mod faq;
 
-pub use Event::{Event, NewEvent};
-pub use Pin::{Pin, NewPin};
-pub use Faq::{Faq, NewFaq};
+pub use event::{Event, NewEvent};
+pub use pin::{Pin, NewPin};
+pub use faq::{Faq, NewFaq};
 

@@ -1,0 +1,4 @@
+DROP TABLE event;
+DROP TABLE pin;
+DROP TABLE faq;
+

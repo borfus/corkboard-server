@@ -24,6 +24,9 @@ mod prelude {
     pub use crate::route::*;
     pub use crate::config::*;
     pub use crate::schema::*;
+    pub use crate::schema::event::*;
+    pub use crate::schema::pin::*;
+    pub use crate::schema::faq::*;
 }
 
 use dotenv::dotenv;
@@ -39,7 +42,17 @@ fn rocket() -> rocket::Rocket {
         .manage(pool)
         .mount(
             "/api/v1/",
-            routes![route::user::get_all, route::user::new_user, route::user::get_one]
+            routes![
+                route::event::get_all,
+                route::event::new_event,
+                route::event::get_one,
+                route::pin::get_all,
+                route::pin::new_pin,
+                route::pin::get_one,
+                route::faq::get_all,
+                route::faq::new_faq,
+                route::faq::get_one
+            ]
         )
 }
 

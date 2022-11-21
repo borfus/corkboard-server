@@ -4,20 +4,20 @@ use crate::config::db::Conn as DbConn;
 use rocket_contrib::json::Json;
 use serde_json::Value;
 
-#[get("/user", format = "application/json")]
+#[get("/event", format = "application/json")]
 pub fn get_all(conn: DbConn) -> Json<Value> {
-    let users = User::get_all_users(&conn);
-    Json(json!(users))
+    let events = Event::get_all_events(&conn);
+    Json(json!(events))
 }
 
-#[post("/user", format = "application/json", data = "<new_user>")]
-pub fn new_user(conn: DbConn, new_user: Json<NewUser>) -> Json<Value> {
-    User::insert_user(new_user.into_inner(), &conn);
-    Json(json!(User::get_all_users(&conn).first()))
+#[post("/event", format = "application/json", data = "<new_event>")]
+pub fn new_event(conn: DbConn, new_event: Json<NewEvent>) -> Json<Value> {
+    Event::insert_event(new_event.into_inner(), &conn);
+    Json(json!(Event::get_all_events(&conn).first()))
 }
 
-#[get("/user/<username>", format = "application/json")]
-pub fn get_one(conn: DbConn, username: String) -> Json<Value> {
-    Json(json!(User::get_user_by_username(username, &conn)))
+#[get("/event/<event_id>", format = "application/json")]
+pub fn get_one(conn: DbConn, event_id: String) -> Json<Value> {
+    Json(json!(Event::get_event_by_id(event_id.as_str(), &conn)))
 }
 
