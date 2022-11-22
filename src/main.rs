@@ -44,14 +44,21 @@ fn rocket() -> rocket::Rocket {
             "/api/v1/",
             routes![
                 route::event::get_all,
+                route::event::get_all_current,
                 route::event::new_event,
                 route::event::get_one,
+                route::event::update,
+                route::event::delete,
                 route::pin::get_all,
                 route::pin::new_pin,
                 route::pin::get_one,
+                route::pin::update,
+                route::pin::delete,
                 route::faq::get_all,
                 route::faq::new_faq,
-                route::faq::get_one
+                route::faq::get_one,
+                route::faq::update,
+                route::faq::delete
             ]
         )
 }

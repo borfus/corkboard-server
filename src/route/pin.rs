@@ -21,3 +21,13 @@ pub fn get_one(conn: DbConn, pin_id: String) -> Json<Value> {
     Json(json!(Pin::get_pin_by_id(pin_id.as_str(), &conn)))
 }
 
+#[put("/pin/<pin_id>", format = "application/json", data = "<new_pin>")]
+pub fn update(conn: DbConn, new_pin: Json<NewPin>, pin_id: String) -> Json<Value> {
+    Json(json!(Pin::update_by_id(pin_id.as_str(), new_pin.into_inner(), &conn)))
+}
+
+#[delete("/pin/<pin_id>", format = "application/json")]
+pub fn delete(conn: DbConn, pin_id: String) -> Json<Value> {
+    Json(json!(Pin::delete_by_id(pin_id.as_str(), &conn)))
+}
+
