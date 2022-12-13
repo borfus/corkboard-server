@@ -6,6 +6,7 @@ use chrono::NaiveDateTime;
 use chrono::Utc;
 
 use crate::schema::event;
+use crate::schema::event::id;
 use crate::schema::event::dsl::event as all_events;
 
 #[derive(Serialize, Queryable)]
@@ -49,11 +50,12 @@ impl Event {
         result
     }
 
-    pub fn insert_event(event: NewEvent, conn: &PgConnection) -> bool {
-        diesel::insert_into(event::table)
+    pub fn insert_event(event: NewEvent, conn: &PgConnection) -> Uuid {
+        let new_event = diesel::insert_into(event::table)
             .values(&event)
-            .execute(conn)
-            .is_ok()
+            .returning(id)
+            .get_result(conn);
+        new_event.unwrap()
     }
 
     pub fn get_event_by_id(event_id: &str, conn: &PgConnection) -> Vec<Event> {

@@ -12,8 +12,8 @@ pub fn get_all(conn: DbConn) -> Json<Value> {
 
 #[post("/pin", format = "application/json", data = "<new_pin>")]
 pub fn new_pin(conn: DbConn, new_pin: Json<NewPin>) -> Json<Value> {
-    Pin::insert_pin(new_pin.into_inner(), &conn);
-    Json(json!(Pin::get_all_pins(&conn).first()))
+    let new_pin = Pin::insert_pin(new_pin.into_inner(), &conn);
+    Json(json!(Pin::get_pin_by_id(new_pin.to_string().as_str(), &conn)))
 }
 
 #[get("/pin/<pin_id>", format = "application/json")]

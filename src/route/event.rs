@@ -18,8 +18,8 @@ pub fn get_all_current(conn: DbConn) -> Json<Value> {
 
 #[post("/event", format = "application/json", data = "<new_event>")]
 pub fn new_event(conn: DbConn, new_event: Json<NewEvent>) -> Json<Value> {
-    Event::insert_event(new_event.into_inner(), &conn);
-    Json(json!(Event::get_all_events(&conn).first()))
+    let new_event = Event::insert_event(new_event.into_inner(), &conn);
+    Json(json!(Event::get_event_by_id(new_event.to_string().as_str(), &conn)))
 }
 
 #[get("/event/<event_id>", format = "application/json")]

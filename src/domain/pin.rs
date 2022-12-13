@@ -6,6 +6,7 @@ use chrono::NaiveDateTime;
 use chrono::Utc;
 
 use crate::schema::pin;
+use crate::schema::pin::id;
 use crate::schema::pin::dsl::pin as all_pins;
 
 #[derive(Serialize, Queryable)]
@@ -33,11 +34,12 @@ impl Pin {
             .expect("error!")
     }
 
-    pub fn insert_pin(pin: NewPin, conn: &PgConnection) -> bool {
-        diesel::insert_into(pin::table)
+    pub fn insert_pin(pin: NewPin, conn: &PgConnection) -> Uuid {
+        let new_pin = diesel::insert_into(pin::table)
             .values(&pin)
-            .execute(conn)
-            .is_ok()
+            .returning(id)
+            .get_result(conn);
+        new_pin.unwrap()
     }
 
     pub fn get_pin_by_id(pin_id: &str, conn: &PgConnection) -> Vec<Pin> {

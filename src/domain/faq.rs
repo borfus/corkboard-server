@@ -6,6 +6,7 @@ use chrono::NaiveDateTime;
 use chrono::Utc;
 
 use crate::schema::faq;
+use crate::schema::faq::id;
 use crate::schema::faq::dsl::faq as all_faqs;
 
 #[derive(Serialize, Queryable)]
@@ -31,11 +32,12 @@ impl Faq {
             .expect("error!")
     }
 
-    pub fn insert_faq(faq: NewFaq, conn: &PgConnection) -> bool {
-        diesel::insert_into(faq::table)
+    pub fn insert_faq(faq: NewFaq, conn: &PgConnection) -> Uuid {
+        let new_faq = diesel::insert_into(faq::table)
             .values(&faq)
-            .execute(conn)
-            .is_ok()
+            .returning(id)
+            .get_result(conn);
+        new_faq.unwrap()
     }
 
     pub fn get_faq_by_id(faq_id: &str, conn: &PgConnection) -> Vec<Faq> {

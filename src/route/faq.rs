@@ -12,8 +12,8 @@ pub fn get_all(conn: DbConn) -> Json<Value> {
 
 #[post("/faq", format = "application/json", data = "<new_faq>")]
 pub fn new_faq(conn: DbConn, new_faq: Json<NewFaq>) -> Json<Value> {
-    Faq::insert_faq(new_faq.into_inner(), &conn);
-    Json(json!(Faq::get_all_faqs(&conn).first()))
+    let new_faq = Faq::insert_faq(new_faq.into_inner(), &conn);
+    Json(json!(Faq::get_faq_by_id(new_faq.to_string().as_str(), &conn)))
 }
 
 #[get("/faq/<faq_id>", format = "application/json")]
