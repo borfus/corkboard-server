@@ -4,21 +4,20 @@ use crate::config::db::Conn as DbConn;
 use rocket_contrib::json::Json;
 use serde_json::Value;
 
-#[get("/pin", format = "application/json")]
-pub fn get_all(conn: DbConn) -> Json<Value> {
-    let pins = Pin::get_all_pins(&conn);
+#[get("/pin/guild/<path_guild_id>", format = "application/json")]
+pub fn get_all(conn: DbConn, path_guild_id: String) -> Json<Value> {
+    let pins = Pin::get_all_pins(path_guild_id.as_str().parse::<i64>().unwrap(), &conn);
     Json(json!(pins))
 }
 
 #[post("/pin", format = "application/json", data = "<new_pin>")]
 pub fn new_pin(conn: DbConn, new_pin: Json<NewPin>) -> Json<Value> {
-    let new_pin = Pin::insert_pin(new_pin.into_inner(), &conn);
-    Json(json!(Pin::get_pin_by_id(new_pin.to_string().as_str(), &conn)))
+    Json(json!(Pin::insert_pin(new_pin.into_inner(), &conn)))
 }
 
-#[get("/pin/<pin_id>", format = "application/json")]
-pub fn get_one(conn: DbConn, pin_id: String) -> Json<Value> {
-    Json(json!(Pin::get_pin_by_id(pin_id.as_str(), &conn)))
+#[get("/pin/<pin_id>/guild/<path_guild_id>", format = "application/json")]
+pub fn get_one(conn: DbConn, pin_id: String, path_guild_id: String) -> Json<Value> {
+    Json(json!(Pin::get_pin_by_id(pin_id.as_str(), path_guild_id.as_str().parse::<i64>().unwrap(), &conn)))
 }
 
 #[put("/pin/<pin_id>", format = "application/json", data = "<new_pin>")]
