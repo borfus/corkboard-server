@@ -4,7 +4,7 @@ REST server using the Rust Rocket and Diesel frameworks (using PostgreSQL).
 
 Basic CRUD functionality to store events, pins, and faqs. 
 
-Meant to be used with the "Corkboard" discord bot (still in development).
+Meant to be used with the "Corkboard" discord bot.
 
 ## Installation
 Set up local Postgres server:
@@ -16,4 +16,7 @@ Set up local Postgres server:
 Set up database DDL with diesel_cli:
 * `cargo install diesel_cli --no-default-features --features postgres`
 * `diesel migration run`
+
+Run with Rust Nightly:
+* `rustup override set nightly`
 
