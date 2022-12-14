@@ -32,7 +32,8 @@ pub fn update(conn: DbConn, new_event: Json<NewEvent>, event_id: String) -> Json
     Json(json!(Event::update_by_id(event_id.as_str(), new_event.into_inner(), &conn)))
 }
 
-#[delete("/event/<event_id>", format = "application/json")]
+// We should be able to use the delete macro, but DELETE routes seem to be bugged
+#[get("/event/delete/<event_id>", format = "application/json")]
 pub fn delete(conn: DbConn, event_id: String) -> Json<Value> {
     Json(json!(Event::delete_by_id(event_id.as_str(), &conn)))
 }

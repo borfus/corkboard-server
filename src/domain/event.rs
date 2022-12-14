@@ -3,7 +3,7 @@ use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use uuid::Uuid;
 use chrono::NaiveDateTime;
-use chrono::Utc;
+use chrono::{Utc, Duration};
 
 use crate::schema::event;
 use crate::schema::event::id;
@@ -44,7 +44,7 @@ impl Event {
             .load::<Event>(conn)
             .expect("Error occurred while attempting to get all current events!");
 
-        let now = Utc::now().naive_utc();
+        let now = Utc::now().naive_utc() - Duration::hours(8);
         result.retain(|e| e.start_date.unwrap() <= now && e.end_date.unwrap() >= now);
 
         result
