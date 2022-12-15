@@ -6,13 +6,13 @@ use chrono::NaiveDateTime;
 use chrono::{Utc, Duration};
 
 use crate::schema::event;
-use crate::schema::event::id;
 use crate::schema::event::dsl::event as all_events;
 
 #[derive(Serialize, Queryable)]
 pub struct Event {
     pub id: Uuid,
     pub last_modified_date: NaiveDateTime,
+    pub guild_id: Option<i64>,
     pub url: Option<String>,
     pub title: Option<String>,
     pub description: Option<String>,
@@ -23,6 +23,7 @@ pub struct Event {
 #[derive(Serialize, Deserialize, Insertable)]
 #[table_name = "event"]
 pub struct NewEvent {
+    pub guild_id: Option<i64>,
     pub url: Option<String>,
     pub title: Option<String>,
     pub description: Option<String>,
@@ -31,15 +32,17 @@ pub struct NewEvent {
 }
 
 impl Event {
-    pub fn get_all_events(conn: &PgConnection) -> Vec<Event> {
+    pub fn get_all_events(guild_id: i64, conn: &PgConnection) -> Vec<Event> {
         all_events
+            .filter(event::guild_id.eq(Some(guild_id)))
             .order(event::id.desc())
             .load::<Event>(conn)
             .expect("Error occurred while attempting to get all events!")
     }
 
-    pub fn get_current_events(conn: &PgConnection) -> Vec<Event> {
+    pub fn get_current_events(guild_id: i64, conn: &PgConnection) -> Vec<Event> {
         let mut result = all_events
+            .filter(event::guild_id.eq(Some(guild_id)))
             .order(event::end_date)
             .load::<Event>(conn)
             .expect("Error occurred while attempting to get all current events!");
@@ -50,12 +53,12 @@ impl Event {
         result
     }
 
-    pub fn insert_event(event: NewEvent, conn: &PgConnection) -> Uuid {
+    pub fn insert_event(event: NewEvent, conn: &PgConnection) -> Event {
         let new_event = diesel::insert_into(event::table)
             .values(&event)
-            .returning(id)
-            .get_result(conn);
-        new_event.unwrap()
+            .get_result::<Event>(conn)
+            .unwrap();
+        new_event
     }
 
     pub fn get_event_by_id(event_id: &str, conn: &PgConnection) -> Vec<Event> {

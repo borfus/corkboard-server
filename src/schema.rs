@@ -4,6 +4,7 @@ diesel::table! {
     event (id) {
         id -> Uuid,
         last_modified_date -> Timestamp,
+        guild_id -> Nullable<Int8>,
         url -> Nullable<Varchar>,
         title -> Nullable<Varchar>,
         description -> Nullable<Varchar>,
@@ -16,6 +17,7 @@ diesel::table! {
     faq (id) {
         id -> Uuid,
         last_modified_date -> Timestamp,
+        guild_id -> Nullable<Int8>,
         question -> Nullable<Varchar>,
         answer -> Nullable<Varchar>,
     }
@@ -25,6 +27,7 @@ diesel::table! {
     pin (id) {
         id -> Uuid,
         last_modified_date -> Timestamp,
+        guild_id -> Nullable<Int8>,
         url -> Nullable<Varchar>,
         title -> Nullable<Varchar>,
         description -> Nullable<Varchar>,

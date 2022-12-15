@@ -1,0 +1,5 @@
+-- Your SQL goes here
+ALTER TABLE event ADD COLUMN guild_id BIGINT;
+ALTER TABLE pin ADD COLUMN guild_id BIGINT;
+ALTER TABLE faq ADD COLUMN guild_id BIGINT;
+

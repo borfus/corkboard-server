@@ -6,13 +6,13 @@ use chrono::NaiveDateTime;
 use chrono::Utc;
 
 use crate::schema::faq;
-use crate::schema::faq::id;
 use crate::schema::faq::dsl::faq as all_faqs;
 
 #[derive(Serialize, Queryable)]
 pub struct Faq {
     pub id: Uuid,
     pub last_modified_date: NaiveDateTime,
+    pub guild_id: Option<i64>,
     pub question: Option<String>,
     pub answer: Option<String>
 }
@@ -20,29 +20,32 @@ pub struct Faq {
 #[derive(Serialize, Deserialize, Insertable)]
 #[table_name = "faq"]
 pub struct NewFaq {
+    pub guild_id: Option<i64>,
     pub question: Option<String>,
     pub answer: Option<String>
 }
 
 impl Faq {
-    pub fn get_all_faqs(conn: &PgConnection) -> Vec<Faq> {
+    pub fn get_all_faqs(guild_id: i64, conn: &PgConnection) -> Vec<Faq> {
         all_faqs
+            .filter(faq::guild_id.eq(Some(guild_id)))
             .order(faq::id.desc())
             .load::<Faq>(conn)
             .expect("error!")
     }
 
-    pub fn insert_faq(faq: NewFaq, conn: &PgConnection) -> Uuid {
+    pub fn insert_faq(faq: NewFaq, conn: &PgConnection) -> Faq {
         let new_faq = diesel::insert_into(faq::table)
             .values(&faq)
-            .returning(id)
-            .get_result(conn);
-        new_faq.unwrap()
+            .get_result::<Faq>(conn)
+            .unwrap();
+        new_faq
     }
 
-    pub fn get_faq_by_id(faq_id: &str, conn: &PgConnection) -> Vec<Faq> {
+    pub fn get_faq_by_id(faq_id: &str, guild_id: i64, conn: &PgConnection) -> Vec<Faq> {
         all_faqs
             .filter(faq::id.eq(Uuid::parse_str(faq_id).unwrap()))
+            .filter(faq::guild_id.eq(Some(guild_id)))
             .load::<Faq>(conn)
             .expect("error!")
     }
