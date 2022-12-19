@@ -12,12 +12,12 @@ use crate::schema::event::dsl::event as all_events;
 pub struct Event {
     pub id: Uuid,
     pub last_modified_date: NaiveDateTime,
-    pub guild_id: Option<i64>,
     pub url: Option<String>,
     pub title: Option<String>,
     pub description: Option<String>,
     pub start_date: Option<NaiveDateTime>,
-    pub end_date: Option<NaiveDateTime>
+    pub end_date: Option<NaiveDateTime>,
+    pub guild_id: Option<i64>
 }
 
 #[derive(Serialize, Deserialize, Insertable)]
