@@ -12,12 +12,12 @@ use crate::schema::event::dsl::event as all_events;
 pub struct Event {
     pub id: Uuid,
     pub last_modified_date: NaiveDateTime,
-    pub guild_id: Option<i64>,
     pub url: Option<String>,
     pub title: Option<String>,
     pub description: Option<String>,
     pub start_date: Option<NaiveDateTime>,
-    pub end_date: Option<NaiveDateTime>
+    pub end_date: Option<NaiveDateTime>,
+    pub guild_id: Option<i64>
 }
 
 #[derive(Serialize, Deserialize, Insertable)]
@@ -47,7 +47,7 @@ impl Event {
             .load::<Event>(conn)
             .expect("Error occurred while attempting to get all current events!");
 
-        let now = Utc::now().naive_utc() - Duration::hours(8);
+        let now = Utc::now().naive_utc() - Duration::hours(7);
         result.retain(|e| e.start_date.unwrap() <= now && e.end_date.unwrap() >= now);
 
         result

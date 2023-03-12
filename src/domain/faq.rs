@@ -12,9 +12,9 @@ use crate::schema::faq::dsl::faq as all_faqs;
 pub struct Faq {
     pub id: Uuid,
     pub last_modified_date: NaiveDateTime,
-    pub guild_id: Option<i64>,
     pub question: Option<String>,
-    pub answer: Option<String>
+    pub answer: Option<String>,
+    pub guild_id: Option<i64>
 }
 
 #[derive(Serialize, Deserialize, Insertable)]

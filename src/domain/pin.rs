@@ -12,10 +12,10 @@ use crate::schema::pin::dsl::pin as all_pins;
 pub struct Pin {
     pub id: Uuid,
     pub last_modified_date: NaiveDateTime,
-    pub guild_id: Option<i64>,
     pub url: Option<String>,
     pub title: Option<String>,
-    pub description: Option<String>
+    pub description: Option<String>,
+    pub guild_id: Option<i64>
 }
 
 #[derive(Serialize, Deserialize, Insertable)]
