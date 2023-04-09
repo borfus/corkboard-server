@@ -24,6 +24,17 @@ diesel::table! {
 }
 
 diesel::table! {
+    luckymon_history (id) {
+        id -> Uuid,
+        last_modified_date -> Timestamp,
+        user_id -> Nullable<Int8>,
+        date_obtained -> Nullable<Date>,
+        pokemon_id -> Nullable<Int8>,
+        shiny -> Nullable<Bool>,
+    }
+}
+
+diesel::table! {
     pin (id) {
         id -> Uuid,
         last_modified_date -> Timestamp,
@@ -37,5 +48,6 @@ diesel::table! {
 diesel::allow_tables_to_appear_in_same_query!(
     event,
     faq,
+    luckymon_history,
     pin,
 );
