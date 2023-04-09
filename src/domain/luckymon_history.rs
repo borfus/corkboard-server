@@ -34,7 +34,7 @@ impl LuckymonHistory {
     pub fn get_all_hist_by_user(user_id: i64, conn: &PgConnection) -> Vec<LuckymonHistory> {
         all_luckymon_history
             .filter(luckymon_history::user_id.eq(Some(user_id)))
-            .order(luckymon_history::pokemon_id.desc())
+            .order(luckymon_history::pokemon_id)
             .load::<LuckymonHistory>(conn)
             .expect("error!")
     }
@@ -44,11 +44,11 @@ impl LuckymonHistory {
         // If so, don't add another entry.
         if let Ok(existing_hist) = all_luckymon_history
             .filter(luckymon_history::user_id.eq(hist.user_id))
-            .filter(luckymon_history::date_obtained.eq(hist.date_obtained))
             .filter(luckymon_history::pokemon_id.eq(hist.pokemon_id))
-            .filter(luckymon_history::shiny.eq(hist.shiny))
-            .filter(luckymon_history::pokemon_name.eq(&hist.pokemon_name))
             .get_result::<LuckymonHistory>(conn) {
+                if hist.shiny.unwrap() && !existing_hist.shiny.unwrap() {
+                    return Self::update_by_id(&existing_hist.id.to_string(), hist, conn);
+                }
                 return existing_hist;
         }
 
