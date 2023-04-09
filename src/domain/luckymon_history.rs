@@ -16,7 +16,8 @@ pub struct LuckymonHistory {
     pub user_id: Option<i64>,
     pub date_obtained: Option<NaiveDate>,
     pub pokemon_id: Option<i64>,
-    pub shiny: Option<bool>
+    pub shiny: Option<bool>,
+    pub pokemon_name: Option<String>
 }
 
 #[derive(Serialize, Deserialize, Insertable)]
@@ -25,7 +26,8 @@ pub struct NewLuckymonHistory {
     pub user_id: Option<i64>,
     pub date_obtained: Option<NaiveDate>,
     pub pokemon_id: Option<i64>,
-    pub shiny: Option<bool>
+    pub shiny: Option<bool>,
+    pub pokemon_name: Option<String>
 }
 
 impl LuckymonHistory {
@@ -45,6 +47,7 @@ impl LuckymonHistory {
             .filter(luckymon_history::date_obtained.eq(hist.date_obtained))
             .filter(luckymon_history::pokemon_id.eq(hist.pokemon_id))
             .filter(luckymon_history::shiny.eq(hist.shiny))
+            .filter(luckymon_history::pokemon_name.eq(&hist.pokemon_name))
             .get_result::<LuckymonHistory>(conn) {
                 return existing_hist;
         }
@@ -75,7 +78,8 @@ impl LuckymonHistory {
                     luckymon_history::user_id.eq(new_hist.user_id),
                     luckymon_history::date_obtained.eq(new_hist.date_obtained),
                     luckymon_history::pokemon_id.eq(new_hist.pokemon_id),
-                    luckymon_history::shiny.eq(new_hist.shiny)
+                    luckymon_history::shiny.eq(new_hist.shiny),
+                    luckymon_history::pokemon_name.eq(new_hist.pokemon_name)
             ))
             .get_result::<LuckymonHistory>(conn)
             .expect(format!("Unabled to update luckymon_history with ID {}", hist_id).as_str());
