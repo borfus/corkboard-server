@@ -31,6 +31,7 @@ diesel::table! {
         date_obtained -> Nullable<Date>,
         pokemon_id -> Nullable<Int8>,
         shiny -> Nullable<Bool>,
+        pokemon_name -> Nullable<Varchar>,
     }
 }
 
