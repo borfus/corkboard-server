@@ -27,6 +27,7 @@ mod prelude {
     pub use crate::schema::event::*;
     pub use crate::schema::pin::*;
     pub use crate::schema::faq::*;
+    pub use crate::schema::luckymon_history::*;
 }
 
 use dotenv::dotenv;
@@ -58,7 +59,12 @@ fn rocket() -> rocket::Rocket {
                 route::faq::new_faq,
                 route::faq::get_one,
                 route::faq::update,
-                route::faq::delete
+                route::faq::delete,
+                route::luckymon_history::get_all,
+                route::luckymon_history::new_hist,
+                route::luckymon_history::get_one,
+                route::luckymon_history::update,
+                route::luckymon_history::delete
             ]
         )
 }
