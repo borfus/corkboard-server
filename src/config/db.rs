@@ -2,7 +2,7 @@ use diesel::pg::PgConnection;
 use r2d2;
 use r2d2_diesel::ConnectionManager;
 use rocket::http::Status;
-use rocket::request::{self, Outcome, FromRequest};
+use rocket::request::{self, FromRequest, Outcome};
 use rocket::{Request, State};
 use std::ops::Deref;
 
@@ -22,7 +22,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for Conn {
         let pool = request.guard::<State<Pool>>()?;
         match pool.get() {
             Ok(conn) => Outcome::Success(Conn(conn)),
-            Err(_) => Outcome::Failure((Status::ServiceUnavailable, ()))
+            Err(_) => Outcome::Failure((Status::ServiceUnavailable, ())),
         }
     }
 }
@@ -35,4 +35,3 @@ impl Deref for Conn {
         &self.0
     }
 }
-
