@@ -1,9 +1,9 @@
+use chrono::NaiveDateTime;
+use chrono::{Duration, Utc};
 use diesel;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use uuid::Uuid;
-use chrono::NaiveDateTime;
-use chrono::{Utc, Duration};
 
 use crate::schema::event;
 use crate::schema::event::dsl::event as all_events;
@@ -17,7 +17,7 @@ pub struct Event {
     pub description: Option<String>,
     pub start_date: Option<NaiveDateTime>,
     pub end_date: Option<NaiveDateTime>,
-    pub guild_id: Option<i64>
+    pub guild_id: Option<i64>,
 }
 
 #[derive(Serialize, Deserialize, Insertable)]
@@ -28,7 +28,7 @@ pub struct NewEvent {
     pub title: Option<String>,
     pub description: Option<String>,
     pub start_date: Option<NaiveDateTime>,
-    pub end_date: Option<NaiveDateTime>
+    pub end_date: Option<NaiveDateTime>,
 }
 
 impl Event {
@@ -65,31 +65,41 @@ impl Event {
         all_events
             .filter(event::id.eq(Uuid::parse_str(event_id).expect("Invalid Event ID!")))
             .load::<Event>(conn)
-            .expect(format!("Error occurred while attempting to get event with ID {}", event_id).as_str())
+            .expect(
+                format!(
+                    "Error occurred while attempting to get event with ID {}",
+                    event_id
+                )
+                .as_str(),
+            )
     }
 
     pub fn update_by_id(event_id: &str, new_event: NewEvent, conn: &PgConnection) -> Event {
-        let updated_event = diesel::update(all_events.filter(event::id.eq(Uuid::parse_str(event_id).expect("Invalid Event ID!"))))
-            .set((
-                    event::last_modified_date.eq(NaiveDateTime::from_timestamp_millis(Utc::now().timestamp_millis()).unwrap()),
-                    event::title.eq(new_event.title),
-                    event::url.eq(new_event.url),
-                    event::description.eq(new_event.description),
-                    event::start_date.eq(new_event.start_date),
-                    event::end_date.eq(new_event.end_date)
-            ))
-            .get_result::<Event>(conn)
-            .expect(format!("Unabled to update event with ID {}", event_id).as_str());
+        let updated_event = diesel::update(
+            all_events.filter(event::id.eq(Uuid::parse_str(event_id).expect("Invalid Event ID!"))),
+        )
+        .set((
+            event::last_modified_date
+                .eq(NaiveDateTime::from_timestamp_millis(Utc::now().timestamp_millis()).unwrap()),
+            event::title.eq(new_event.title),
+            event::url.eq(new_event.url),
+            event::description.eq(new_event.description),
+            event::start_date.eq(new_event.start_date),
+            event::end_date.eq(new_event.end_date),
+        ))
+        .get_result::<Event>(conn)
+        .expect(format!("Unabled to update event with ID {}", event_id).as_str());
 
         updated_event
     }
 
     pub fn delete_by_id(event_id: &str, conn: &PgConnection) -> Event {
-        let deleted_event = diesel::delete(all_events.filter(event::id.eq(Uuid::parse_str(event_id).expect("Invalid Event ID!"))))
-            .get_result(conn)
-            .expect(format!("Unabled to delete event with ID {}", event_id).as_str());
+        let deleted_event = diesel::delete(
+            all_events.filter(event::id.eq(Uuid::parse_str(event_id).expect("Invalid Event ID!"))),
+        )
+        .get_result(conn)
+        .expect(format!("Unabled to delete event with ID {}", event_id).as_str());
 
         deleted_event
     }
 }
-
