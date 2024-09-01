@@ -19,6 +19,7 @@ pub struct LuckymonHistory {
     pub pokemon_id: Option<i64>,
     pub shiny: Option<bool>,
     pub pokemon_name: Option<String>,
+    pub traded: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Insertable)]
@@ -29,6 +30,7 @@ pub struct NewLuckymonHistory {
     pub pokemon_id: Option<i64>,
     pub shiny: Option<bool>,
     pub pokemon_name: Option<String>,
+    pub traded: Option<bool>,
 }
 
 impl LuckymonHistory {
@@ -91,6 +93,7 @@ impl LuckymonHistory {
             luckymon_history::pokemon_id.eq(new_hist.pokemon_id),
             luckymon_history::shiny.eq(new_hist.shiny),
             luckymon_history::pokemon_name.eq(new_hist.pokemon_name),
+            luckymon_history::traded.eq(new_hist.traded),
         ))
         .get_result::<LuckymonHistory>(conn)
         .expect(format!("Unabled to update luckymon_history with ID {}", hist_id).as_str());
