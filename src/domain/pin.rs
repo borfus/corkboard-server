@@ -1,3 +1,4 @@
+use chrono::DateTime;
 use chrono::NaiveDateTime;
 use chrono::Utc;
 use diesel;
@@ -57,8 +58,11 @@ impl Pin {
             all_pins.filter(pin::id.eq(Uuid::parse_str(pin_id).expect("Invalid Pin ID!"))),
         )
         .set((
-            pin::last_modified_date
-                .eq(NaiveDateTime::from_timestamp_millis(Utc::now().timestamp_millis()).unwrap()),
+            pin::last_modified_date.eq(DateTime::from_timestamp_millis(
+                Utc::now().timestamp_millis(),
+            )
+            .unwrap()
+            .naive_utc()),
             pin::title.eq(new_pin.title),
             pin::url.eq(new_pin.url),
             pin::description.eq(new_pin.description),

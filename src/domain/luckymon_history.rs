@@ -1,3 +1,4 @@
+use chrono::DateTime;
 use chrono::NaiveDate;
 use chrono::NaiveDateTime;
 use chrono::Utc;
@@ -80,8 +81,11 @@ impl LuckymonHistory {
             ),
         )
         .set((
-            luckymon_history::last_modified_date
-                .eq(NaiveDateTime::from_timestamp_millis(Utc::now().timestamp_millis()).unwrap()),
+            luckymon_history::last_modified_date.eq(DateTime::from_timestamp_millis(
+                Utc::now().timestamp_millis(),
+            )
+            .unwrap()
+            .naive_utc()),
             luckymon_history::user_id.eq(new_hist.user_id),
             luckymon_history::date_obtained.eq(new_hist.date_obtained),
             luckymon_history::pokemon_id.eq(new_hist.pokemon_id),
