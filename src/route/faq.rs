@@ -33,8 +33,7 @@ pub fn update(conn: DbConn, new_faq: Json<NewFaq>, faq_id: String) -> Json<Value
     )))
 }
 
-// We should be able to use the delete macro, but DELETE routes seem to be bugged
-#[get("/faq/delete/<faq_id>", format = "application/json")]
+#[delete("/faq/delete/<faq_id>", format = "application/json")]
 pub fn delete(conn: DbConn, faq_id: String) -> Json<Value> {
     Json(json!(Faq::delete_by_id(faq_id.as_str(), &conn)))
 }

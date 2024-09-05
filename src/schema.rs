@@ -47,4 +47,9 @@ diesel::table! {
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(event, faq, luckymon_history, pin,);
+diesel::allow_tables_to_appear_in_same_query!(
+    event,
+    faq,
+    luckymon_history,
+    pin,
+);

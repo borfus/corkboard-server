@@ -101,6 +101,37 @@ impl LuckymonHistory {
         updated_hist
     }
 
+    pub fn update_as_traded(hist_id: &str, conn: &PgConnection) -> LuckymonHistory {
+        let to_update = all_luckymon_history
+            .filter(luckymon_history::id.eq(Uuid::parse_str(hist_id).unwrap()))
+            .get_result::<LuckymonHistory>(conn)
+            .expect(format!("Unable to find luckymon_history with ID {}!", hist_id).as_str());
+
+        let updated_hist = diesel::update(
+            all_luckymon_history.filter(
+                luckymon_history::id
+                    .eq(Uuid::parse_str(hist_id).expect("Invalid luckymon_history ID!")),
+            ),
+        )
+        .set((
+            luckymon_history::last_modified_date.eq(DateTime::from_timestamp_millis(
+                Utc::now().timestamp_millis(),
+            )
+            .unwrap()
+            .naive_utc()),
+            luckymon_history::user_id.eq(to_update.user_id),
+            luckymon_history::date_obtained.eq(to_update.date_obtained),
+            luckymon_history::pokemon_id.eq(to_update.pokemon_id),
+            luckymon_history::shiny.eq(to_update.shiny),
+            luckymon_history::pokemon_name.eq(to_update.pokemon_name),
+            luckymon_history::traded.eq(true),
+        ))
+        .get_result::<LuckymonHistory>(conn)
+        .expect(format!("Unabled to update luckymon_history with ID {}", hist_id).as_str());
+
+        updated_hist
+    }
+
     pub fn delete_by_id(hist_id: &str, conn: &PgConnection) -> LuckymonHistory {
         let deleted_hist = diesel::delete(all_luckymon_history.filter(
             luckymon_history::id.eq(Uuid::parse_str(hist_id).expect("Invalid LuckymonHistory ID!")),

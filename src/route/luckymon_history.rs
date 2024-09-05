@@ -43,8 +43,15 @@ pub fn update(conn: DbConn, new_hist: Json<NewLuckymonHistory>, hist_id: String)
     )))
 }
 
-// We should be able to use the delete macro, but DELETE routes seem to be bugged
-#[get("/luckymon-history/delete/<hist_id>", format = "application/json")]
+#[put("/luckymon-history/traded/<hist_id>", format = "application/json")]
+pub fn update_traded(conn: DbConn, hist_id: String) -> Json<Value> {
+    Json(json!(LuckymonHistory::update_as_traded(
+        hist_id.to_string().as_str(),
+        &conn
+    )))
+}
+
+#[delete("/luckymon-history/delete/<hist_id>", format = "application/json")]
 pub fn delete(conn: DbConn, hist_id: String) -> Json<Value> {
     Json(json!(LuckymonHistory::delete_by_id(
         hist_id.as_str(),

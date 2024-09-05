@@ -226,6 +226,7 @@ dependencies = [
  "rocket",
  "rocket_codegen",
  "rocket_contrib",
+ "rocket_cors",
  "serde",
  "serde_derive",
  "serde_json",
@@ -493,7 +494,7 @@ dependencies = [
  "time",
  "traitobject",
  "typeable",
- "unicase",
+ "unicase 1.4.2",
  "url",
 ]
 
@@ -1033,6 +1034,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "rocket_cors"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d8adde8b1ed231f4a0288085605d869baa02503310a4f80c07ed53fde24dce1b"
+dependencies = [
+ "log 0.3.9",
+ "rocket",
+ "serde",
+ "serde_derive",
+ "unicase 2.7.0",
+ "unicase_serde",
+ "url",
+ "url_serde",
+]
+
+[[package]]
 name = "rocket_http"
 version = "0.4.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1274,6 +1291,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "unicase"
+version = "2.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f7d2d4dafb69621809a81864c9c1b864479e1235c0dd4e199924b9742439ed89"
+dependencies = [
+ "version_check 0.9.5",
+]
+
+[[package]]
+name = "unicase_serde"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6ef53697679d874d69f3160af80bc28de12730a985d57bdf2b47456ccb8b11f1"
+dependencies = [
+ "serde",
+ "unicase 2.7.0",
+]
+
+[[package]]
 name = "unicode-bidi"
 version = "0.3.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1319,6 +1355,16 @@ dependencies = [
  "idna",
  "matches",
  "percent-encoding 1.0.1",
+]
+
+[[package]]
+name = "url_serde"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "74e7d099f1ee52f823d4bdd60c93c3602043c728f5db3b97bdb548467f7bddea"
+dependencies = [
+ "serde",
+ "url",
 ]
 
 [[package]]

@@ -24,15 +24,39 @@ mod prelude {
 }
 
 use dotenv::dotenv;
-use std::env;
+use rocket::http::Method;
+use rocket_cors::{AllowedOrigins, Cors};
+use std::{collections::HashSet, env};
 
 fn rocket() -> rocket::Rocket {
     dotenv().ok();
 
     let database_url = env::var("DATABASE_URL").expect("set DATABASE_URL");
-
     let pool = config::db::init_pool(database_url);
-    rocket::ignite().manage(pool).mount(
+
+    let allowed_origins = AllowedOrigins::all();
+
+    let mut expose_headers = HashSet::new();
+    expose_headers.insert(String::from("Content-Type"));
+
+    let cors_options = Cors {
+        allowed_origins,
+        allowed_methods: vec![Method::Get, Method::Post, Method::Put, Method::Delete]
+            .into_iter()
+            .map(From::from)
+            .collect(),
+        allowed_headers: rocket_cors::AllowedHeaders::some(&[
+            "Authorization",
+            "Accept",
+            "Content-Type",
+        ]),
+        allow_credentials: true,
+        expose_headers,
+        max_age: Some(3600),
+        ..Default::default()
+    };
+
+    rocket::ignite().attach(cors_options).manage(pool).mount(
         "/api/v1/",
         routes![
             route::event::get_all,
@@ -55,6 +79,7 @@ fn rocket() -> rocket::Rocket {
             route::luckymon_history::new_hist,
             route::luckymon_history::get_one,
             route::luckymon_history::update,
+            route::luckymon_history::update_traded,
             route::luckymon_history::delete
         ],
     )

@@ -28,12 +28,14 @@ pub fn get_one(conn: DbConn, event_id: String) -> Json<Value> {
 
 #[put("/event/<event_id>", format = "application/json", data = "<new_event>")]
 pub fn update(conn: DbConn, new_event: Json<NewEvent>, event_id: String) -> Json<Value> {
-    Json(json!(Event::update_by_id(event_id.as_str(), new_event.into_inner(), &conn)))
+    Json(json!(Event::update_by_id(
+        event_id.as_str(),
+        new_event.into_inner(),
+        &conn
+    )))
 }
 
-// We should be able to use the delete macro, but DELETE routes seem to be bugged
-#[get("/event/delete/<event_id>", format = "application/json")]
+#[delete("/event/delete/<event_id>", format = "application/json")]
 pub fn delete(conn: DbConn, event_id: String) -> Json<Value> {
     Json(json!(Event::delete_by_id(event_id.as_str(), &conn)))
 }
-
