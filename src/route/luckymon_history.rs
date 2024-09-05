@@ -14,11 +14,22 @@ pub fn get_all(conn: DbConn, path_user_id: String) -> Json<Value> {
     Json(json!(hists))
 }
 
-#[post("/luckymon-history", format = "application/json", data = "<new_hist>")]
-pub fn new_hist(conn: DbConn, new_hist: Json<NewLuckymonHistory>) -> Json<Value> {
+#[post(
+    "/luckymon-history?<trade>",
+    format = "application/json",
+    data = "<new_hist>"
+)]
+pub fn new_hist(
+    conn: DbConn,
+    new_hist: Json<NewLuckymonHistory>,
+    trade: Option<bool>,
+) -> Json<Value> {
+    let trade = trade.unwrap_or(false);
+
     Json(json!(LuckymonHistory::insert_hist(
         new_hist.into_inner(),
-        &conn
+        &conn,
+        trade
     )))
 }
 

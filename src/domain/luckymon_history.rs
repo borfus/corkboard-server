@@ -42,18 +42,24 @@ impl LuckymonHistory {
             .expect("error!")
     }
 
-    pub fn insert_hist(hist: NewLuckymonHistory, conn: &PgConnection) -> LuckymonHistory {
+    pub fn insert_hist(
+        hist: NewLuckymonHistory,
+        conn: &PgConnection,
+        trade: bool,
+    ) -> LuckymonHistory {
         // Check to see if the user already ran the .luckymon command today.
         // If so, don't add another entry.
-        if let Ok(existing_hist) = all_luckymon_history
-            .filter(luckymon_history::user_id.eq(hist.user_id))
-            .filter(luckymon_history::pokemon_id.eq(hist.pokemon_id))
-            .get_result::<LuckymonHistory>(conn)
-        {
-            if hist.shiny.unwrap() && !existing_hist.shiny.unwrap() {
-                return Self::update_by_id(&existing_hist.id.to_string(), hist, conn);
+        if !trade {
+            if let Ok(existing_hist) = all_luckymon_history
+                .filter(luckymon_history::user_id.eq(hist.user_id))
+                .filter(luckymon_history::pokemon_id.eq(hist.pokemon_id))
+                .get_result::<LuckymonHistory>(conn)
+            {
+                if hist.shiny.unwrap() && !existing_hist.shiny.unwrap() {
+                    return Self::update_by_id(&existing_hist.id.to_string(), hist, conn);
+                }
+                return existing_hist;
             }
-            return existing_hist;
         }
 
         let new_hist = diesel::insert_into(luckymon_history::table)
