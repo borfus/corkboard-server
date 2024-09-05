@@ -32,6 +32,7 @@ diesel::table! {
         pokemon_id -> Nullable<Int8>,
         shiny -> Nullable<Bool>,
         pokemon_name -> Nullable<Varchar>,
+        traded -> Nullable<Bool>,
     }
 }
 
@@ -46,4 +47,9 @@ diesel::table! {
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(event, faq, luckymon_history, pin,);
+diesel::allow_tables_to_appear_in_same_query!(
+    event,
+    faq,
+    luckymon_history,
+    pin,
+);

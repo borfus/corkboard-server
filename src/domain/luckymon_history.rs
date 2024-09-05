@@ -1,3 +1,4 @@
+use chrono::DateTime;
 use chrono::NaiveDate;
 use chrono::NaiveDateTime;
 use chrono::Utc;
@@ -18,6 +19,7 @@ pub struct LuckymonHistory {
     pub pokemon_id: Option<i64>,
     pub shiny: Option<bool>,
     pub pokemon_name: Option<String>,
+    pub traded: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Insertable)]
@@ -28,6 +30,7 @@ pub struct NewLuckymonHistory {
     pub pokemon_id: Option<i64>,
     pub shiny: Option<bool>,
     pub pokemon_name: Option<String>,
+    pub traded: Option<bool>,
 }
 
 impl LuckymonHistory {
@@ -39,18 +42,24 @@ impl LuckymonHistory {
             .expect("error!")
     }
 
-    pub fn insert_hist(hist: NewLuckymonHistory, conn: &PgConnection) -> LuckymonHistory {
+    pub fn insert_hist(
+        hist: NewLuckymonHistory,
+        conn: &PgConnection,
+        trade: bool,
+    ) -> LuckymonHistory {
         // Check to see if the user already ran the .luckymon command today.
         // If so, don't add another entry.
-        if let Ok(existing_hist) = all_luckymon_history
-            .filter(luckymon_history::user_id.eq(hist.user_id))
-            .filter(luckymon_history::pokemon_id.eq(hist.pokemon_id))
-            .get_result::<LuckymonHistory>(conn)
-        {
-            if hist.shiny.unwrap() && !existing_hist.shiny.unwrap() {
-                return Self::update_by_id(&existing_hist.id.to_string(), hist, conn);
+        if !trade {
+            if let Ok(existing_hist) = all_luckymon_history
+                .filter(luckymon_history::user_id.eq(hist.user_id))
+                .filter(luckymon_history::pokemon_id.eq(hist.pokemon_id))
+                .get_result::<LuckymonHistory>(conn)
+            {
+                if hist.shiny.unwrap() && !existing_hist.shiny.unwrap() {
+                    return Self::update_by_id(&existing_hist.id.to_string(), hist, conn);
+                }
+                return existing_hist;
             }
-            return existing_hist;
         }
 
         let new_hist = diesel::insert_into(luckymon_history::table)
@@ -80,13 +89,48 @@ impl LuckymonHistory {
             ),
         )
         .set((
-            luckymon_history::last_modified_date
-                .eq(NaiveDateTime::from_timestamp_millis(Utc::now().timestamp_millis()).unwrap()),
+            luckymon_history::last_modified_date.eq(DateTime::from_timestamp_millis(
+                Utc::now().timestamp_millis(),
+            )
+            .unwrap()
+            .naive_utc()),
             luckymon_history::user_id.eq(new_hist.user_id),
             luckymon_history::date_obtained.eq(new_hist.date_obtained),
             luckymon_history::pokemon_id.eq(new_hist.pokemon_id),
             luckymon_history::shiny.eq(new_hist.shiny),
             luckymon_history::pokemon_name.eq(new_hist.pokemon_name),
+            luckymon_history::traded.eq(new_hist.traded),
+        ))
+        .get_result::<LuckymonHistory>(conn)
+        .expect(format!("Unabled to update luckymon_history with ID {}", hist_id).as_str());
+
+        updated_hist
+    }
+
+    pub fn update_as_traded(hist_id: &str, conn: &PgConnection) -> LuckymonHistory {
+        let to_update = all_luckymon_history
+            .filter(luckymon_history::id.eq(Uuid::parse_str(hist_id).unwrap()))
+            .get_result::<LuckymonHistory>(conn)
+            .expect(format!("Unable to find luckymon_history with ID {}!", hist_id).as_str());
+
+        let updated_hist = diesel::update(
+            all_luckymon_history.filter(
+                luckymon_history::id
+                    .eq(Uuid::parse_str(hist_id).expect("Invalid luckymon_history ID!")),
+            ),
+        )
+        .set((
+            luckymon_history::last_modified_date.eq(DateTime::from_timestamp_millis(
+                Utc::now().timestamp_millis(),
+            )
+            .unwrap()
+            .naive_utc()),
+            luckymon_history::user_id.eq(to_update.user_id),
+            luckymon_history::date_obtained.eq(to_update.date_obtained),
+            luckymon_history::pokemon_id.eq(to_update.pokemon_id),
+            luckymon_history::shiny.eq(to_update.shiny),
+            luckymon_history::pokemon_name.eq(to_update.pokemon_name),
+            luckymon_history::traded.eq(true),
         ))
         .get_result::<LuckymonHistory>(conn)
         .expect(format!("Unabled to update luckymon_history with ID {}", hist_id).as_str());

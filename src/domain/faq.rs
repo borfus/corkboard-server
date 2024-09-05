@@ -1,3 +1,4 @@
+use chrono::DateTime;
 use chrono::NaiveDateTime;
 use chrono::Utc;
 use diesel;
@@ -55,8 +56,11 @@ impl Faq {
             all_faqs.filter(faq::id.eq(Uuid::parse_str(faq_id).expect("Invalid FAQ ID!"))),
         )
         .set((
-            faq::last_modified_date
-                .eq(NaiveDateTime::from_timestamp_millis(Utc::now().timestamp_millis()).unwrap()),
+            faq::last_modified_date.eq(DateTime::from_timestamp_millis(
+                Utc::now().timestamp_millis(),
+            )
+            .unwrap()
+            .naive_utc()),
             faq::question.eq(new_faq.question),
             faq::answer.eq(new_faq.answer),
         ))

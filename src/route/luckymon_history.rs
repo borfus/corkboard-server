@@ -14,11 +14,22 @@ pub fn get_all(conn: DbConn, path_user_id: String) -> Json<Value> {
     Json(json!(hists))
 }
 
-#[post("/luckymon-history", format = "application/json", data = "<new_hist>")]
-pub fn new_hist(conn: DbConn, new_hist: Json<NewLuckymonHistory>) -> Json<Value> {
+#[post(
+    "/luckymon-history?<trade>",
+    format = "application/json",
+    data = "<new_hist>"
+)]
+pub fn new_hist(
+    conn: DbConn,
+    new_hist: Json<NewLuckymonHistory>,
+    trade: Option<bool>,
+) -> Json<Value> {
+    let trade = trade.unwrap_or(false);
+
     Json(json!(LuckymonHistory::insert_hist(
         new_hist.into_inner(),
-        &conn
+        &conn,
+        trade
     )))
 }
 
@@ -43,8 +54,15 @@ pub fn update(conn: DbConn, new_hist: Json<NewLuckymonHistory>, hist_id: String)
     )))
 }
 
-// We should be able to use the delete macro, but DELETE routes seem to be bugged
-#[get("/luckymon-history/delete/<hist_id>", format = "application/json")]
+#[put("/luckymon-history/traded/<hist_id>", format = "application/json")]
+pub fn update_traded(conn: DbConn, hist_id: String) -> Json<Value> {
+    Json(json!(LuckymonHistory::update_as_traded(
+        hist_id.to_string().as_str(),
+        &conn
+    )))
+}
+
+#[delete("/luckymon-history/delete/<hist_id>", format = "application/json")]
 pub fn delete(conn: DbConn, hist_id: String) -> Json<Value> {
     Json(json!(LuckymonHistory::delete_by_id(
         hist_id.as_str(),

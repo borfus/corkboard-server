@@ -1,3 +1,4 @@
+use chrono::DateTime;
 use chrono::NaiveDateTime;
 use chrono::{Duration, Utc};
 use diesel;
@@ -79,8 +80,11 @@ impl Event {
             all_events.filter(event::id.eq(Uuid::parse_str(event_id).expect("Invalid Event ID!"))),
         )
         .set((
-            event::last_modified_date
-                .eq(NaiveDateTime::from_timestamp_millis(Utc::now().timestamp_millis()).unwrap()),
+            event::last_modified_date.eq(DateTime::from_timestamp_millis(
+                Utc::now().timestamp_millis(),
+            )
+            .unwrap()
+            .naive_utc()),
             event::title.eq(new_event.title),
             event::url.eq(new_event.url),
             event::description.eq(new_event.description),
