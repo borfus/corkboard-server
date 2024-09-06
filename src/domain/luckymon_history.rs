@@ -53,6 +53,7 @@ impl LuckymonHistory {
             if let Ok(existing_hist) = all_luckymon_history
                 .filter(luckymon_history::user_id.eq(hist.user_id))
                 .filter(luckymon_history::pokemon_id.eq(hist.pokemon_id))
+                .filter(luckymon_history::date_obtained.eq(hist.date_obtained))
                 .get_result::<LuckymonHistory>(conn)
             {
                 if hist.shiny.unwrap() && !existing_hist.shiny.unwrap() {
