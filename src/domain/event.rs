@@ -48,7 +48,7 @@ impl Event {
             .load::<Event>(conn)
             .expect("Error occurred while attempting to get all current events!");
 
-        let now = Utc::now().naive_utc() - Duration::hours(7);
+        let now = Utc::now().naive_utc() - Duration::hours(8);
         result.retain(|e| e.start_date.unwrap() <= now && e.end_date.unwrap() >= now);
 
         result
