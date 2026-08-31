@@ -1,0 +1,8 @@
+# Rocket 0.4.x builds only on nightly: its pear_codegen dependency rejects
+# stable outright, and the crate root opts into decl_macro / proc_macro_hygiene.
+#
+# Pinned rather than tracking "nightly" because the surrounding dependency tree
+# is from the 2019-2021 era and does not survive modern nightlies. This is the
+# toolchain the project last built cleanly against.
+[toolchain]
+channel = "nightly-2024-09-01"

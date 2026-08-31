@@ -80,7 +80,15 @@ fn rocket() -> rocket::Rocket {
             route::luckymon_history::get_one,
             route::luckymon_history::update,
             route::luckymon_history::update_traded,
-            route::luckymon_history::delete
+            route::luckymon_history::delete,
+            route::battle::create,
+            route::battle::get_one,
+            route::battle::leaderboard,
+            route::battle::next_trainer,
+            route::battle::todays_battlefield,
+            route::luckymon_team::get_for_user,
+            route::luckymon_team::save,
+            route::luckymon_team::clear
         ],
     )
 }

@@ -1,11 +1,12 @@
 use chrono::DateTime;
 use chrono::NaiveDateTime;
-use chrono::{Duration, Utc};
+use chrono::Utc;
 use diesel;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+use crate::domain::pacific;
 use crate::schema::event;
 use crate::schema::event::dsl::event as all_events;
 
@@ -48,7 +49,11 @@ impl Event {
             .load::<Event>(conn)
             .expect("Error occurred while attempting to get all current events!");
 
-        let now = Utc::now().naive_utc() - Duration::hours(7);
+        // Event times are stored as naive Pacific wall-clock, so "now" has to be
+        // the Pacific wall clock too. Asking the timezone database keeps this
+        // right through both DST transitions; the fixed -7 hour offset this
+        // replaced was an hour out every winter.
+        let now = pacific::now_naive();
         result.retain(|e| e.start_date.unwrap() <= now && e.end_date.unwrap() >= now);
 
         result

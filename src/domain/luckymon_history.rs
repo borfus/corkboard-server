@@ -47,7 +47,7 @@ impl LuckymonHistory {
         conn: &PgConnection,
         trade: bool,
     ) -> LuckymonHistory {
-        // Check to see if the user already ran the .luckymon command today.
+        // Check to see if the user already ran the /luckymon command today.
         // If so, don't add another entry.
         if !trade {
             if let Ok(existing_hist) = all_luckymon_history
