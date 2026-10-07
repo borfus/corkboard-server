@@ -43,6 +43,31 @@ pub const ROLL_HIGH: f64 = 1.0;
 /// forever. At the cap the healthier side is declared the winner.
 pub const MAX_TURNS: usize = 50;
 
+/// The reliable move: fewer points, but it always connects.
+pub const RELIABLE_POWER: f64 = 80.0;
+
+/// The heavy move: the swing. Moves are picked by coin flip rather than by
+/// comparison, so these two numbers do not need to balance -- but they are worth
+/// reading together.
+///
+/// At 0.70 accuracy the heavy move averaged 77 against the reliable move's 80,
+/// which made it a slightly *worse* roll that also produced a 15% miss rate
+/// across all attacks. Since every miss lands on the big move, those whiffs
+/// carried far more sting than one in seven suggests. At 0.80 it averages 88 --
+/// now a genuine upgrade when it lands -- and the overall miss rate drops to
+/// 10%.
+pub const HEAVY_POWER: f64 = 110.0;
+pub const HEAVY_ACCURACY: f64 = 0.80;
+
+/// Struggle never misses. Being walled is punishing enough already.
+pub const STRUGGLE_POWER: f64 = 50.0;
+
+/// What share of all attacks miss, given the even split between the two moves.
+///
+/// Not used by the simulator -- it exists so the number players actually feel
+/// is written down next to the constant that produces it.
+pub const OVERALL_MISS_RATE: f64 = 0.5 * (1.0 - HEAVY_ACCURACY);
+
 pub const TEAM_SIZE: usize = 3;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq)]
@@ -75,7 +100,7 @@ fn struggle(category: Category) -> Move {
         name: "Struggle",
         move_type: None,
         category,
-        power: 50.0,
+        power: STRUGGLE_POWER,
         accuracy: 1.0,
     }
 }
@@ -224,16 +249,16 @@ fn build_moveset(type_1: Type, type_2: Option<Type>, preferred: Category) -> Vec
             name: move_name(t, preferred, false),
             move_type: Some(t),
             category: preferred,
-            power: 80.0,
+            power: RELIABLE_POWER,
             accuracy: 1.0,
         });
-        // The swing move. Ends games, misses three times in ten.
+        // The swing move: hits harder, occasionally hits nothing.
         moves.push(Move {
             name: move_name(t, preferred, true),
             move_type: Some(t),
             category: preferred,
-            power: 110.0,
-            accuracy: 0.7,
+            power: HEAVY_POWER,
+            accuracy: HEAVY_ACCURACY,
         });
     }
 
@@ -465,10 +490,12 @@ fn choose_move(
     let chosen = types[rng.below(types.len() as u64) as usize];
 
     // Within the chosen type, pick between the reliable move and the heavy one.
-    // This is a coin flip rather than a comparison on purpose: at 80 power with
-    // full accuracy against 110 at 70%, expected damage is near enough
-    // identical that a comparison would always land on the same one and leave
-    // the other permanently unused.
+    //
+    // A coin flip rather than a comparison, and now load-bearing: the heavy move
+    // averages 88 to the reliable move's 80, so anything that compared expected
+    // damage would throw the heavy every single turn and the reliable one would
+    // never appear. The flip is what keeps both in play -- and what keeps the
+    // miss rate at half the heavy move's, rather than all of it.
     let of_type: Vec<&Move> = usable
         .iter()
         .filter(|m| m.move_type == Some(chosen))
@@ -764,6 +791,50 @@ mod tests {
         assert!(shiny.atk > plain.atk);
         let ratio = shiny.atk / plain.atk;
         assert!(ratio > 1.03 && ratio < 1.07, "got {}", ratio);
+    }
+
+    /// The number players actually feel. Every miss lands on the heavy move, so
+    /// the rate that matters is half its failure rate, not all of it.
+    #[test]
+    fn overall_miss_rate_is_half_the_heavy_moves() {
+        assert!((OVERALL_MISS_RATE - 0.10).abs() < 1e-9, "expected 10%");
+        assert!(
+            OVERALL_MISS_RATE < 1.0 - HEAVY_ACCURACY,
+            "the coin flip must halve the exposure, not pass it through"
+        );
+    }
+
+    /// Both moves have to stay worth throwing. If the heavy one ever drops below
+    /// the reliable one in expectation it becomes a trap, and if it climbs too
+    /// far above it the reliable one is just a worse turn.
+    #[test]
+    fn the_heavy_move_is_a_real_upgrade_but_not_a_runaway() {
+        let reliable = RELIABLE_POWER;
+        let heavy = HEAVY_POWER * HEAVY_ACCURACY;
+
+        assert!(
+            heavy > reliable,
+            "heavy averages {} against reliable's {} -- it should reward the risk",
+            heavy,
+            reliable
+        );
+        assert!(
+            heavy < reliable * 1.25,
+            "heavy averages {}, too far ahead of {} to leave the reliable move a real option",
+            heavy,
+            reliable
+        );
+    }
+
+    #[test]
+    fn every_move_a_pokemon_carries_is_one_of_the_two_shapes() {
+        let zard = Combatant::new(&charizard(), false, 1.0);
+
+        for mv in zard.moves.iter() {
+            let known = (mv.power == RELIABLE_POWER && mv.accuracy == 1.0)
+                || (mv.power == HEAVY_POWER && mv.accuracy == HEAVY_ACCURACY);
+            assert!(known, "unexpected move shape: {} ({} power)", mv.name, mv.power);
+        }
     }
 
     #[test]
