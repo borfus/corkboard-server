@@ -66,6 +66,7 @@ pub const STRUGGLE_POWER: f64 = 50.0;
 ///
 /// Not used by the simulator -- it exists so the number players actually feel
 /// is written down next to the constant that produces it.
+#[cfg_attr(not(test), allow(dead_code))]
 pub const OVERALL_MISS_RATE: f64 = 0.5 * (1.0 - HEAVY_ACCURACY);
 
 pub const TEAM_SIZE: usize = 3;
